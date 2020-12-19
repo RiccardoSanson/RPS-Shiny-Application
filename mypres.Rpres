@@ -1,0 +1,104 @@
+The Rock-Paper-Scissors Game
+========================================================
+author: Riccardo Sanson
+date: 2020/12/19
+autosize: true
+
+Coursera "Developing Data Products"
+
+Presentation for the Shiny App <https://rs1350.shinyapps.io/RPS_ShinyApp/>
+
+
+Introduction
+========================================================
+
+Play the Rock-Paper-Scissors game against a bot to the your luck.
+
+Features:
+* self-explanatory, responsive user interface;
+* reactive elements triggered by the user;
+* live counts of match played, won, etc...
+* possibility to reset the count.
+
+***
+![alt text](./images/rock.jpeg)
+![alt text](./images/paper.jpeg)
+![alt text](./images/scissors.jpeg)
+
+Example of code
+========================================================
+
+```{r, echo = FALSE}
+nrties = 3
+nrall = 10
+nrwon = 3
+```
+
+```{r}
+x = "Rock"                                      # player input
+y = sample(c("Rock","Paper","Scissors"), 1)     # bot choice
+if (x == y) {
+  msg = "TIE"
+  nrties <<- nrties + 1
+} else if ((y == "Rock" & x == "Paper") | (y == "Paper" & x == "Scissors") | (y == "Scissors" & x == "Rock")) {
+  msg = "YOU WON"
+  nrwon <<- nrwon + 1
+} else {
+  msg = "YOU LOST"
+}
+cat("Bot chose: ", y,". ", msg,"\n")
+```
+
+Example of code
+========================================================
+
+Data frame that summarizes the results
+
+```{r}
+data.frame("Total games" = nrall,
+           "Wins" = nrwon,
+           "Ties" = nrties,
+           "Losses" = nrall-nrwon-nrties
+)
+```
+
+And how the images are handled.
+
+```{r, eval = FALSE}
+output$botMove <- renderImage({
+            if(is.null(x)) blankImg(1, 1) else
+                if(y == "Rock") rockImg(npixel, npixel) else
+                    if(y == "Scissors") scissorsImg(npixel, npixel) else
+                        if(y == "Paper") paperImg(npixel, npixel)
+        },  deleteFile = FALSE)
+```
+
+Example of code
+========================================================
+
+The inputs are handled with action Buttons.
+
+```{r, eval = FALSE}
+# ...
+actionButton("in_rock", label = img(src = "images/rock.jpeg",
+            height = "100px", width = "100px")
+),
+# ...
+```
+
+And the reset with the following code
+
+```{r, eval = FALSE}
+# in ui.R
+checkboxInput(inputId = 'userReset',
+              label = "Start again (reset all counters to zero)",
+              value = FALSE ),
+
+# in server.R
+observe({
+  if (input$userReset == TRUE) {
+    renderSite(NULL)
+  }
+})
+```
+
